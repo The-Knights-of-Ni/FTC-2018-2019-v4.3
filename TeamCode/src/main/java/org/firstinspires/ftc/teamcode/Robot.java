@@ -34,11 +34,14 @@ public class Robot {
     private DcMotorEx relicMotor;
 
     //Servos
-    private Servo jewelServo;
-    private Servo leftSqueezerServo;
-    private Servo rightSqueezerServo;
-    private Servo relicWristServo;
-    private Servo relicClawServo;
+//    private Servo jewelServo;
+//    private Servo leftSqueezerServo;
+//    private Servo rightSqueezerServo;
+//    private Servo relicWristServo;
+//    private Servo relicClawServo;
+    private Servo intakeBoxTilt;
+    private Servo intakeMech;
+
 
     //Sensors
     private BNO055IMU imu;
@@ -78,11 +81,11 @@ public class Robot {
         relicMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Servos
-        jewelServo = hardwareMap.servo.get("jewel_servo");
-        leftSqueezerServo = hardwareMap.servo.get("left_grabber");
-        rightSqueezerServo = hardwareMap.servo.get("right_grabber");
-        relicWristServo = hardwareMap.servo.get("relic_wrist");
-        relicClawServo = hardwareMap.servo.get("relic_claw");
+//        jewelServo = hardwareMap.servo.get("jewel_servo");
+//        leftSqueezerServo = hardwareMap.servo.get("left_grabber");
+//        rightSqueezerServo = hardwareMap.servo.get("right_grabber");
+//        relicWristServo = hardwareMap.servo.get("relic_wrist");
+//        relicClawServo = hardwareMap.servo.get("relic_claw");
 
         //Sensors
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -100,9 +103,9 @@ public class Robot {
 
         //Subsystems
         drive = new Drive(frontLeftDriveMotor, frontRightDriveMotor, rearLeftDriveMotor, rearRightDriveMotor, imu, timer);
-        glyft = new Glyft(leftSqueezerServo, rightSqueezerServo, leftGlyftMotor, rightGlyftMotor, timer);
-        relicRecovery = new RelicRecovery(relicWristServo, relicClawServo, relicMotor, timer);
-        jewel = new Jewel(jewelServo, colorSensor, timer);
+//        glyft = new Glyft(leftSqueezerServo, rightSqueezerServo, leftGlyftMotor, rightGlyftMotor, timer);
+//        relicRecovery = new RelicRecovery(relicWristServo, relicClawServo, relicMotor, timer);
+//        jewel = new Jewel(jewelServo, colorSensor, timer);
     }
 }
 
