@@ -75,4 +75,76 @@ public class Drive extends Subsystem {
         return imu.getAngularOrientation().firstAngle;
     }
 
+    public void turnByAngle(double power, double turnAngle) {
+        double initialAngle = getYaw();
+        setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        if (turnAngle > 0.0) {
+            // counter-clockwise
+            double currentAngle = initialAngle;
+            while (Math.abs(currentAngle - initialAngle - turnAngle) > 2) {
+                turn(power);
+                currentAngle = getYaw();
+                if (currentAngle < initialAngle) {
+                    // angle wraparound
+                    currentAngle += 360.0;
+                }
+            }
+        } else {
+            // clockwise
+            double currentAngle = initialAngle;
+            while (Math.abs(currentAngle - initialAngle - turnAngle) > 2) {
+                turn(-power);
+                currentAngle = getYaw();
+                if (currentAngle > initialAngle) {
+                    // angle wraparound
+                    currentAngle -= 360.0;
+                }
+            }
+        }
+        stop();
+    }
+
+    public void moveToPos2D(double power, double targetPositionX, double targetPositionY){
+        // move to X, Y position relative to the robot coordinate system
+        // the center of robot is 0,0
+        setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setTargetPosition2D(targetPositionX, targetPositionY);
+        setPower2D(targetPositionX, targetPositionY, power);
+        while (frontLeft.isBusy() && frontRight.isBusy() && rearLeft.isBusy() && rearRight.isBusy()) {
+
+        }
+        stop();
+    }
+
+    private void setPower2D(double targetPositionX, double targetPositionY, double motorPower) {
+        // distribute power appropriately according to the direction of motion
+        double[] motorPowers = calcMotorPowers2D(targetPositionX, targetPositionY, motorPower);
+        rearLeft.setPower(motorPowers[0]);
+        frontLeft.setPower(motorPowers[1]);
+        rearRight.setPower(motorPowers[2]);
+        frontRight.setPower(motorPowers[3]);
+    }
+
+    private void setTargetPosition2D(double targetPositionX, double targetPositionY) {
+        // set motor rotation targets appropriately according to the direction of motion
+        frontLeft.setTargetPosition((int)  ((+ targetPositionX + targetPositionY)*Math.sqrt(2.0)));
+        frontRight.setTargetPosition((int) ((- targetPositionX + targetPositionY)*Math.sqrt(2.0)));
+        rearLeft.setTargetPosition((int)   ((- targetPositionX + targetPositionY)*Math.sqrt(2.0)));
+        rearRight.setTargetPosition((int)  ((+ targetPositionX + targetPositionY)*Math.sqrt(2.0)));
+    }
+
+    private double[] calcMotorPowers2D(double angleX, double angleY, double motorPower)
+    {
+        // angleX and angleY determine the direction of movement
+        // motorPower determines the magnitude of motor power
+        double angleScale = Math.abs(angleX) + Math.abs(angleY);
+        double lrPower = motorPower * (- angleX + angleY) / angleScale;
+        double lfPower = motorPower * (+ angleX + angleY) / angleScale;
+        double rrPower = motorPower * (+ angleX + angleY) / angleScale;
+        double rfPower = motorPower * (- angleX + angleY) / angleScale;
+        return new double[]{lrPower, lfPower, rrPower, rfPower};
+    }
+
 }

@@ -45,6 +45,53 @@ public class Auto_Blue_Depot extends LinearOpMode{
 
     //Encoder Constants
 
+    // Field parameters
+    private static final double     FIELD_X    = 144.0;
+    private static final double     FIELD_Y    = 144.0;
+    private static final double     DEPOT_X    = FIELD_X - 22.0;
+    private static final double     DEPOT_Y    = 22.0;
+    private static final double     CRATER_X    = 25.0;
+    private static final double     CRATER_Y    = 25.0;
+
+/*
+    // mineral position (left lander)
+    private static final double     MINERAL1_X    = 45.5;
+    private static final double     MINERAL1_Y    = 25.0;
+    private static final double     MINERAL2_X    = 35.25;
+    private static final double     MINERAL2_Y    = 35.25;
+    private static final double     MINERAL3_X    = 25.0;
+    private static final double     MINERAL3_Y    = 45.5;
+*/
+
+    // mineral position (right lander)
+    private static final double     MINERAL1_X    = FIELD_X - 25.0;
+    private static final double     MINERAL1_Y    = 45.5;
+    private static final double     MINERAL2_X    = FIELD_X - 35.25;
+    private static final double     MINERAL2_Y    = 35.25;
+    private static final double     MINERAL3_X    = FIELD_X - 45.5;
+    private static final double     MINERAL3_Y    = 25.0;
+
+/*
+    // Robot initial position (left lander)
+    private static final double     ROBOT_INIT_POS_X    = FIELD_X*0.5 - 21.0;;
+    private static final double     ROBOT_INIT_POS_Y    = FIELD_X*0.5 - 21.0;
+    private static final double     ROBOT_INIT_ANGLE    = 225.0;
+*/
+
+    // Robot initial position (right lander)
+    private static final double     ROBOT_INIT_POS_X    = FIELD_X*0.5 + 21.0;;
+    private static final double     ROBOT_INIT_POS_Y    = FIELD_X*0.5 - 21.0;
+    private static final double     ROBOT_INIT_ANGLE    = 315.0;
+
+    private static final double     ROBOT_HALF_LENGTH    = 9.0;
+
+    private static final int        MAX_TRIAL_COUNT = 3;
+
+    // define robot position global variables
+    double robotCurrentPosX;    // unit in inches
+    double robotCurrentPosY;    // unit in inches
+    double robotCurrentAngle;   // unit in degrees
+
     @Override
     public void runOpMode() throws InterruptedException {
         timer = new ElapsedTime();
@@ -58,94 +105,67 @@ public class Auto_Blue_Depot extends LinearOpMode{
 
         //LANDING NEED TO BE WRITTEN
 
-        int samplePos = mineralPosIdentification();
-        //Forwards towards mineral samples
-        robot.drive.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.drive.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.drive.setTargetPosition(??);
-        robot.drive.setPower(0.10);
-        while (opModeIsActive() && robot.drive.frontLeft.isBusy() && robot.drive.frontRight.isBusy()) {
+        // define robot position after landing
+        robotCurrentPosX = ROBOT_INIT_POS_X;
+        robotCurrentPosY = ROBOT_INIT_POS_Y;
+        robotCurrentAngle = ROBOT_INIT_ANGLE;
 
-        }
-        robot.drive.stop();
-        sleep(500);
+        // find mineral configuration
+        int samplePos;
+        int trialCount = 0;
+        do {
+            samplePos = mineralPosIdentification();
+            trialCount++;
+            // repeat MAX_TRIAL_COUNT times if no mineral was found
+        } while ((samplePos == -1) && (trialCount < MAX_TRIAL_COUNT));
+
+        //Forwards towards mineral samples
+        moveForward(10.0);
 
         //Drive to correct sample (gold)
-        int targetPosition = 0;
         switch (samplePos) {
             case 0:
-                targetPosition = ???;
+                moveLeft(16.0);
                 break;
             case 1:
-                targetPosition = ???;
                 break;
             case 2:
-                targetPosition = ???;
+                moveRight(16.0);
                 break;
-            default:
-                targetPosition = ???;
+            default: // gold mineral not found, go straight
+                break;
         }
-        moveToPos(0.10, targetPosition);
-
-        moveToPos(0.10, ???);
-        moveToPos(0.10,???);
+        // drive forward to move the mineral
+        moveForward(10.0);
 
         //move to depot depend on sample mineral position
         switch (samplePos) {
             case 0:
-                targetPosition = ???;
+                moveForward(10.0);
+                turnRobot(-30.0);
+                moveForward(15.0);
                 break;
             case 1:
-                targetPosition = ???;
+                moveForward(20.0);
                 break;
             case 2:
-                targetPosition = ???;
+                moveForward(10.0);
+                turnRobot(30.0);
+                moveForward(15.0);
                 break;
             default:
-                targetPosition = ???;
+                moveForward(20.0);
         }
-        moveToPos(0.10, targetPosition);
 
         //DROP TEAM MARKER NEED TO BE ADDED
 
 
-
-
     }
 
 
 
 
 
-
-
-
-
-    public void driveBackward(int timeLen)
-    {
-        robot.drive.setPower(-0.5);
-        sleep(timeLen);
-    }
-
-    public void driveForward(int timeLen)
-    {
-        robot.drive.setPower(0.5);
-        sleep(timeLen);
-    }
-
-
-
-    private double[] calcMotorPowers(double leftStickX, double leftStickY, double rightStickX)
-    {
-        //probably a better way to do this
-        double r = Math.hypot(leftStickX, leftStickY);
-        double robotAngle = Math.atan2(leftStickY, leftStickX) - Math.PI / 4;
-        double lrPower = r * Math.sin(robotAngle) + rightStickX;
-        double lfPower = r * Math.cos(robotAngle) + rightStickX;
-        double rrPower = r * Math.cos(robotAngle) - rightStickX;
-        double rfPower = r * Math.sin(robotAngle) - rightStickX;
-        return new double[]{lrPower, lfPower, rrPower, rfPower};
-    }
 
     private void initRobot() {
         robot.init();
@@ -162,6 +182,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        // Loading trackables is not necessary for the Tensor Flow Object Detection engine.
 
         //Tensorflow init
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
@@ -189,8 +210,8 @@ public class Auto_Blue_Depot extends LinearOpMode{
         if (tfod != null) {
             tfod.activate();
         }
-
-        while (opModeIsActive()) {
+//      loop only once
+//        while (opModeIsActive()) {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
@@ -226,22 +247,107 @@ public class Auto_Blue_Depot extends LinearOpMode{
                     telemetry.update();
                 }
             }
-        }
+//        }
         if (tfod != null) {
             tfod.shutdown();
         }
         return pos;
     }
 
-    public void moveToPos(double power, int targetPosition){
-        robot.drive.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.drive.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.drive.setTargetPosition(targetPosition);
-        robot.drive.setPower(power);
-        while (opModeIsActive() && robot.drive.frontLeft.isBusy() && robot.drive.frontRight.isBusy()) {
-
-        }
-        robot.drive.stop();
-        sleep(500);
+    private void turnRobot(double degrees) {
+        robot.drive.turnByAngle(TURN_SPEED, degrees);
+        robotCurrentPosX += ROBOT_HALF_LENGTH * (Math.cos((robotCurrentAngle+degrees)*Math.PI/180.0)
+                - Math.cos(robotCurrentAngle*Math.PI/180.0));
+        robotCurrentPosY += ROBOT_HALF_LENGTH * (Math.sin((robotCurrentAngle+degrees)*Math.PI/180.0)
+                - Math.sin(robotCurrentAngle*Math.PI/180.0));
+        robotCurrentAngle += degrees;
+        // Display it for the driver.
+        telemetry.addData("turnRobot",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.update();
+        sleep(100);
     }
+
+    private void moveToPosABS(double targetPositionX, double targetPositionY) {
+        // move to (targetPositionX, targetPositionY) in absolute field coordinate
+        double  deltaX = targetPositionX - robotCurrentPosX;    // in absolute field coordinate
+        double  deltaY = targetPositionY - robotCurrentPosY;    // in absolute field coordinate
+        double  distanceCountX, distanceCountY;  // distance in motor count in robot coordinate
+        // rotate vector from field coordinate to robot coordinate
+        distanceCountX = (deltaX * Math.cos((robotCurrentAngle-90.0)*Math.PI/180.0)
+                + deltaY * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0)) * COUNTS_PER_INCH;
+        distanceCountY = (deltaX * Math.cos(robotCurrentAngle*Math.PI/180.0)
+                + deltaY * Math.sin(robotCurrentAngle*Math.PI/180.0)) * COUNTS_PER_INCH;
+        robot.drive.moveToPos2D(DRIVE_SPEED, distanceCountX, distanceCountY);
+        robotCurrentPosX = targetPositionX;
+        robotCurrentPosY = targetPositionY;
+        // Display it for the driver.
+        telemetry.addData("moveForward",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.update();
+        sleep(100);
+    }
+
+    private void moveToPosREL(double targetPositionX, double targetPositionY) {
+        // move to (targetPositionX, targetPositionY) in relative robot coordinate
+        double  distanceCountX, distanceCountY;  // distance in motor count
+        distanceCountX = targetPositionX * COUNTS_PER_INCH;
+        distanceCountY = targetPositionY * COUNTS_PER_INCH;
+        robot.drive.moveToPos2D(DRIVE_SPEED, distanceCountX, distanceCountY);
+        robotCurrentPosX += targetPositionY * Math.cos(robotCurrentAngle*Math.PI/180.0)
+                        + targetPositionX * Math.cos((robotCurrentAngle-90.0)*Math.PI/180.0);
+        robotCurrentPosY += targetPositionY * Math.sin(robotCurrentAngle*Math.PI/180.0)
+                        + targetPositionX * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
+        // Display it for the driver.
+        telemetry.addData("moveForward",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.update();
+        sleep(100);
+    }
+
+    private void moveForward(double distance) {
+        double  distanceCount;  // distance in motor count
+        distanceCount = distance * COUNTS_PER_INCH;
+        robot.drive.moveToPos2D(DRIVE_SPEED, 0.0, distanceCount);
+        robotCurrentPosX += distance * Math.cos(robotCurrentAngle*Math.PI/180.0);
+        robotCurrentPosY += distance * Math.sin(robotCurrentAngle*Math.PI/180.0);
+        // Display it for the driver.
+        telemetry.addData("moveForward",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.update();
+        sleep(100);
+    }
+
+    private void moveBackward(double distance) {
+        double  distanceCount;  // distance in motor count
+        distanceCount = distance * COUNTS_PER_INCH;
+        robot.drive.moveToPos2D(DRIVE_SPEED, 0.0, -distanceCount);
+        robotCurrentPosX += distance * Math.cos((robotCurrentAngle+180.0)*Math.PI/180.0);
+        robotCurrentPosY += distance * Math.sin((robotCurrentAngle+180.0)*Math.PI/180.0);
+        // Display it for the driver.
+        telemetry.addData("moveBackward",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.update();
+        sleep(100);
+    }
+
+    private void moveLeft(double distance) {
+        double  distanceCount;  // distance in motor count
+        distanceCount = distance * COUNTS_PER_INCH;
+        robot.drive.moveToPos2D(DRIVE_SPEED, -distanceCount, 0.0);
+        robotCurrentPosX += distance * Math.cos((robotCurrentAngle+90.0)*Math.PI/180.0);
+        robotCurrentPosY += distance * Math.sin((robotCurrentAngle+90.0)*Math.PI/180.0);
+        // Display it for the driver.
+        telemetry.addData("moveLeft",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.update();
+        sleep(100);
+    }
+
+    private void moveRight(double distance) {
+        double  distanceCount;  // distance in motor count
+        distanceCount = distance * COUNTS_PER_INCH;
+        robot.drive.moveToPos2D(DRIVE_SPEED, distanceCount, 0.0);
+        robotCurrentPosX += distance * Math.cos((robotCurrentAngle-90.0)*Math.PI/180.0);
+        robotCurrentPosY += distance * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
+        // Display it for the driver.
+        telemetry.addData("moveRight",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.update();
+        sleep(100);
+    }
+
 }
