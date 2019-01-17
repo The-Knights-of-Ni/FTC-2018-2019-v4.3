@@ -262,7 +262,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
                 - Math.sin(robotCurrentAngle*Math.PI/180.0));
         robotCurrentAngle += degrees;
         // Display it for the driver.
-        telemetry.addData("turnRobot",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("turnRobot",  "turn to %7.2lf degrees", robotCurrentAngle);
         telemetry.update();
         sleep(100);
     }
@@ -281,7 +281,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX = targetPositionX;
         robotCurrentPosY = targetPositionY;
         // Display it for the driver.
-        telemetry.addData("moveForward",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveForward",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -297,7 +297,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosY += targetPositionY * Math.sin(robotCurrentAngle*Math.PI/180.0)
                         + targetPositionX * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveForward",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveForward",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -309,7 +309,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX += distance * Math.cos(robotCurrentAngle*Math.PI/180.0);
         robotCurrentPosY += distance * Math.sin(robotCurrentAngle*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveForward",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveForward",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -321,7 +321,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX += distance * Math.cos((robotCurrentAngle+180.0)*Math.PI/180.0);
         robotCurrentPosY += distance * Math.sin((robotCurrentAngle+180.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveBackward",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveBackward",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -333,7 +333,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX += distance * Math.cos((robotCurrentAngle+90.0)*Math.PI/180.0);
         robotCurrentPosY += distance * Math.sin((robotCurrentAngle+90.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveLeft",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveLeft",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -345,7 +345,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX += distance * Math.cos((robotCurrentAngle-90.0)*Math.PI/180.0);
         robotCurrentPosY += distance * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveRight",  "move to %7.2d, %7.2d", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveRight",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
