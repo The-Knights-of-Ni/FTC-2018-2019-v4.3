@@ -69,7 +69,7 @@ public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY = "ATZMkCj/////AAABmX3On4xKmUsch2nrYqi9tddt+c9M24Yy5Cumo5mbSLBBFD1cWRkI8FqMrCKmj1eqYXFthq2eTrUO0qaWrXQQkmpQEBwqywHoXmD4BxPCaen1GJCJEq+Kkgxq9Jqahe+59YxzXCpn5CNXL2J0bbfP6RseoZLr6iqSuBGfvx4Eoa6y/61+C6+xIibW50pUQqEG/LtHQau9JBAW/IrYa3r7HIcOx4XHplQzBLZNTTkIUkpcelfz6i+y2s4PWlFkOC9OuFxMq1qdwjSmerg2QqYYktF3trwBzzQIuOZrqk4DFeX8fN/i73hi9uKP/I6RYwcrluVA+59lXyHRFlJ/NmsOVyiJgwFTedlnEJjTnPlJhZOP";
+    private static final String VUFORIA_KEY = "AVjXPzj/////AAABmQ0V3DHJw0P5lI39lVnXqNN+qX1uwVniSS5pN2zeI7ng4z9OkAMad+79Zv+vPtirvt1/Ai6dD+bZL04LynwBqdGmNSXaTXzHd21vpZdiBxmGt9Gb6nMP/p2gTc5wU6hVRJqTe+KexOqzppYs79i5rGbbwO7bZUxpXR5tJeLzicXi3prSnh49SK+kxyTX9XfsjG90+H2TfzVjpYhbX26Qi/abV4uMn7xgzC1q7L54Caixa1aytY3F/NnWAC+87mG5ghf4tcH0CPVFoYEUa0wKMG1bMWOPSfyRG/BBWdaxd1bsIU0xhI5i24nr5LXIrw2JI286TduItR/IH4WRonVA6tbz9QuuhSLlDocIgbwxIbJB";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
