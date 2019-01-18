@@ -176,7 +176,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         //Vuforia initialization
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = "AX1T/JH/////AAAAGWQh21MbJEIhpE//dkoSovcwBwhbe6+121U+fGQaCJZI0cDQka2Bqcnc1N9dRlzyr5ZwjGPLUqxXId7+l/yUFBV1v66pF5nuD5JJOr9IVM22ZUxMSQesMrpCqfzGowHAv/dTDZmuqOxfqazZ6xeJ5V/V/2HdwGFDCrTXbZd4PzSwaOQed48I7XtIvu2m3nEJAb+aAC6DT78HHLRIFStmgfS4QglTEy+M7JOtDkc5u5k5CQhk9hwNsea4nDqfVf9XJjKLJJFhTat0IdiPz8BIrsNWxP8S7EiZLaWdanHJIOdP2NhokmI0jkLgPuRLkC7BvorDDeVI+pdutDMjN9kf/b11uGyrf6fJ4AySTe1+R9m/";
+        parameters.vuforiaLicenseKey = "ATZMkCj/////AAABmX3On4xKmUsch2nrYqi9tddt+c9M24Yy5Cumo5mbSLBBFD1cWRkI8FqMrCKmj1eqYXFthq2eTrUO0qaWrXQQkmpQEBwqywHoXmD4BxPCaen1GJCJEq+Kkgxq9Jqahe+59YxzXCpn5CNXL2J0bbfP6RseoZLr6iqSuBGfvx4Eoa6y/61+C6+xIibW50pUQqEG/LtHQau9JBAW/IrYa3r7HIcOx4XHplQzBLZNTTkIUkpcelfz6i+y2s4PWlFkOC9OuFxMq1qdwjSmerg2QqYYktF3trwBzzQIuOZrqk4DFeX8fN/i73hi9uKP/I6RYwcrluVA+59lXyHRFlJ/NmsOVyiJgwFTedlnEJjTnPlJhZOP";
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
