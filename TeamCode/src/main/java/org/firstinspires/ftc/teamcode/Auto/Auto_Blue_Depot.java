@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -57,52 +58,64 @@ public class Auto_Blue_Depot extends LinearOpMode{
 
     //Encoder Constants
 
+    /**
+     * If you are standing in the Red Alliance Station looking towards the center of the field,
+     *     - The X axis runs from your left to the right. (positive from the center to the right)
+     *     - The Y axis runs from the Red Alliance Station towards the other side of the field
+     *       where the Blue Alliance Station is. (Positive is from the center, towards the BlueAlliance station)
+     *     - The Z axis runs from the floor, upwards towards the ceiling.  (Positive is above the floor)
+     **/
     // Field parameters
-    private static final double     FIELD_X    = 144.0;
-    private static final double     FIELD_Y    = 144.0;
-    private static final double     DEPOT_X    = FIELD_X - 22.0;
-    private static final double     DEPOT_Y    = 22.0;
-    private static final double     CRATER_X    = 25.0;
-    private static final double     CRATER_Y    = 25.0;
+    private static final double     FIELD_X    = 72.0;
+    private static final double     FIELD_Y    = 72.0;
+    private static final double     DEPOT_X    = -FIELD_X + 22.0;
+    private static final double     DEPOT_Y    = FIELD_Y - 22.0;
+    private static final double     CRATER_X    = FIELD_X - 25.0;
+    private static final double     CRATER_Y    = FIELD_Y - 25.0;
 
 /*
-    // mineral position (left lander)
-    private static final double     MINERAL1_X    = 45.5;
-    private static final double     MINERAL1_Y    = 25.0;
-    private static final double     MINERAL2_X    = 35.25;
-    private static final double     MINERAL2_Y    = 35.25;
-    private static final double     MINERAL3_X    = 25.0;
-    private static final double     MINERAL3_Y    = 45.5;
-*/
-
-    // mineral position (right lander)
-    private static final double     MINERAL1_X    = FIELD_X - 25.0;
-    private static final double     MINERAL1_Y    = 45.5;
+    // mineral position (left lander) (Crater side)
+    private static final double     MINERAL1_X    = FIELD_X - 45.5;
+    private static final double     MINERAL1_Y    = FIELD_Y - 25.0;
     private static final double     MINERAL2_X    = FIELD_X - 35.25;
-    private static final double     MINERAL2_Y    = 35.25;
-    private static final double     MINERAL3_X    = FIELD_X - 45.5;
-    private static final double     MINERAL3_Y    = 25.0;
-
-/*
-    // Robot initial position (left lander)
-    private static final double     ROBOT_INIT_POS_X    = FIELD_X*0.5 - 21.0;;
-    private static final double     ROBOT_INIT_POS_Y    = FIELD_X*0.5 - 21.0;
-    private static final double     ROBOT_INIT_ANGLE    = 225.0;
+    private static final double     MINERAL2_Y    = FIELD_Y - 35.25;
+    private static final double     MINERAL3_X    = FIELD_X - 25.0;
+    private static final double     MINERAL3_Y    = FIELD_Y - 45.5;
 */
 
-    // Robot initial position (right lander)
-    private static final double     ROBOT_INIT_POS_X    = FIELD_X*0.5 + 21.0;;
-    private static final double     ROBOT_INIT_POS_Y    = FIELD_X*0.5 - 21.0;
-    private static final double     ROBOT_INIT_ANGLE    = 315.0;
+    // mineral position (right lander) (Depot side)
+    private static final double     MINERAL1_X    = -FIELD_X + 25.0;
+    private static final double     MINERAL1_Y    = FIELD_Y - 45.5;
+    private static final double     MINERAL2_X    = -FIELD_X + 35.25;
+    private static final double     MINERAL2_Y    = FIELD_Y - 35.25;
+    private static final double     MINERAL3_X    = -FIELD_X + 45.5;
+    private static final double     MINERAL3_Y    = FIELD_Y - 25.0;
+
+/*
+    // Robot initial position (left lander) (Crater side)
+    private static final double     ROBOT_INIT_POS_X    = 15.0;
+    private static final double     ROBOT_INIT_POS_Y    = 15.0;
+    private static final double     ROBOT_INIT_ANGLE    = 45.0;
+*/
+
+    // Robot initial position (right lander) (Depot side)
+    private static final double     ROBOT_INIT_POS_X    = -15.0;
+    private static final double     ROBOT_INIT_POS_Y    = 15.0;
+    private static final double     ROBOT_INIT_ANGLE    = 135.0;
 
     private static final double     ROBOT_HALF_LENGTH    = 9.0;
 
     private static final int        MAX_TRIAL_COUNT = 3;
 
     // define robot position global variables
-    double robotCurrentPosX;    // unit in inches
-    double robotCurrentPosY;    // unit in inches
-    double robotCurrentAngle;   // unit in degrees
+    private double robotCurrentPosX;    // unit in inches
+    private double robotCurrentPosY;    // unit in inches
+    private double robotCurrentAngle;   // unit in degrees
+
+    // field coordinate polarity
+    // no coordinate inversion needed for Blue Alliance
+    // coordinate inversion needed for Red Alliance
+    private boolean allianceRed = false;
 
     //Define Vuforia Nav
     private static final float mmPerInch        = 25.4f;
@@ -112,6 +125,9 @@ public class Auto_Blue_Depot extends LinearOpMode{
     private OpenGLMatrix lastLocation = null;
     private boolean targetVisible = false;
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+
+    private VuforiaTrackables targetsRoverRuckus;
+    private List<VuforiaTrackable> allTrackables;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -130,6 +146,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX = ROBOT_INIT_POS_X;
         robotCurrentPosY = ROBOT_INIT_POS_Y;
         robotCurrentAngle = ROBOT_INIT_ANGLE;
+//        calibrateRobotPos();
 
         // find mineral configuration
         int samplePos;
@@ -142,6 +159,8 @@ public class Auto_Blue_Depot extends LinearOpMode{
 
         //Forwards towards mineral samples
         moveForward(10.0);
+//        moveToPosABS(-22.1, 22.1);    // depot case
+//        moveToPosABS( 22.1, 22.1);    // crater case
 
         //Drive to correct sample (gold)
         switch (samplePos) {
@@ -157,20 +176,20 @@ public class Auto_Blue_Depot extends LinearOpMode{
                 break;
         }
         // drive forward to move the mineral
-        moveForward(10.0);
+        moveForward(15.0);
 
         //move to depot depend on sample mineral position
         switch (samplePos) {
             case 0:
-                moveForward(10.0);
+                moveForward(15.0);
                 turnRobot(-30.0);
                 moveForward(15.0);
                 break;
             case 1:
-                moveForward(20.0);
+                moveForward(25.0);      // should be at (-50.3, 50.3)
                 break;
             case 2:
-                moveForward(10.0);
+                moveForward(15.0);
                 turnRobot(30.0);
                 moveForward(15.0);
                 break;
@@ -194,6 +213,17 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robot.drive.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.drive.setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // Vuforia Init
+        initVuforiaEngine();
+        telemetry.addLine("Finished Vuforia Initialization.");
+        telemetry.update();
+
+        telemetry.addLine("Finished Initialization. Waiting for start.");
+        telemetry.update();
+        Log.d(TAG, "Finished Initialization. Waiting for start.");
+    }
+
+    private void initVuforiaEngine() {
         //Vuforia initialization
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -216,7 +246,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         //Vuforia Navigation Init
         // Load the data sets that for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
-        VuforiaTrackables targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+        targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
         VuforiaTrackable blueRover = targetsRoverRuckus.get(0);
         blueRover.setName("Blue-Rover");
         VuforiaTrackable redFootprint = targetsRoverRuckus.get(1);
@@ -227,7 +257,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         backSpace.setName("Back-Space");
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
-        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables = new ArrayList<VuforiaTrackable>();
         allTrackables.addAll(targetsRoverRuckus);
 
         /**
@@ -334,9 +364,6 @@ public class Auto_Blue_Depot extends LinearOpMode{
             ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
 
-        telemetry.addLine("Finished Initialization. Waiting for start.");
-        telemetry.update();
-        Log.d(TAG, "Finished Initialization. Waiting for start.");
     }
 
     private void log(String message) {
@@ -353,56 +380,128 @@ public class Auto_Blue_Depot extends LinearOpMode{
         if (tfod != null) {
             tfod.activate();
         }
-//      loop only once
-//        while (opModeIsActive()) {
-            if (tfod != null) {
-                // getUpdatedRecognitions() will return null if no new information is available since
-                // the last time that call was made.
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    telemetry.addData("# Object Detected", updatedRecognitions.size());
-                    if (updatedRecognitions.size() == 3) {
-                        int goldMineralX = -1;
-                        int silverMineral1X = -1;
-                        int silverMineral2X = -1;
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getLeft();
-                            } else if (silverMineral1X == -1) {
-                                silverMineral1X = (int) recognition.getLeft();
-                            } else {
-                                silverMineral2X = (int) recognition.getLeft();
-                            }
-                        }
-                        if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                            if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Left");
-                                pos = 0;
-                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Right");
-                                pos = 1;
-                            } else {
-                                telemetry.addData("Gold Mineral Position", "Center");
-                                pos = 2;
-                            }
+
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                telemetry.addData("# Object Detected", updatedRecognitions.size());
+                if (updatedRecognitions.size() == 3) {
+                    int goldMineralX = -1;
+                    int silverMineral1X = -1;
+                    int silverMineral2X = -1;
+                    for (Recognition recognition : updatedRecognitions) {
+                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                            goldMineralX = (int) recognition.getLeft();
+                        } else if (silverMineral1X == -1) {
+                            silverMineral1X = (int) recognition.getLeft();
+                        } else {
+                            silverMineral2X = (int) recognition.getLeft();
                         }
                     }
-                    telemetry.update();
+                    if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                        if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                            telemetry.addData("Gold Mineral Position", "Left");
+                            pos = 0;
+                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                            telemetry.addData("Gold Mineral Position", "Right");
+                            pos = 1;
+                        } else {
+                            telemetry.addData("Gold Mineral Position", "Center");
+                            pos = 2;
+                        }
+                    }
                 }
+                telemetry.update();
             }
-//        }
+        }
+
         if (tfod != null) {
             tfod.shutdown();
         }
         return pos;
     }
 
+    private double[] robotPosNav() {
+        /** Start tracking the data sets we care about. */
+        targetsRoverRuckus.activate();
+
+        // check all the trackable target to see which one (if any) is visible.
+        targetVisible = false;
+        for (VuforiaTrackable trackable : allTrackables) {
+            if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                telemetry.addData("Visible Target", trackable.getName());
+                targetVisible = true;
+
+                // getUpdatedRobotLocation() will return null if no new information is available since
+                // the last time that call was made, or if the trackable is not currently visible.
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                if (robotLocationTransform != null) {
+                    lastLocation = robotLocationTransform;
+                }
+                break;
+            }
+        }
+
+        // Provide feedback as to where the robot is located (if we know).
+        if (targetVisible) {
+            // express position (translation) of robot in inches.
+            VectorF translation = lastLocation.getTranslation();
+            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+            // express the rotation of the robot in degrees.
+            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            telemetry.update();
+            return new double[]{translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch, rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle};
+        }
+        else {
+            telemetry.addData("Visible Target", "none");
+            telemetry.update();
+            return null;
+        }
+    }
+
+    private void calibrateRobotPos() {
+        double[] robotPosCalibrationMTRX = robotPosNav();
+
+        if (robotPosCalibrationMTRX != null) {
+            // vision target found
+            telemetry.addData("old position", "{X, Y, theta} = %.2f, %.2f, %.1f",
+                    robotCurrentPosX, robotCurrentPosY, robotCurrentAngle);
+            if (allianceRed) {
+                // invert coordinate for Red Alliance
+                robotCurrentPosX = - robotPosCalibrationMTRX[0];
+                robotCurrentPosY = - robotPosCalibrationMTRX[1];
+                robotCurrentAngle = robotPosCalibrationMTRX[5] + 180.0;
+                if (robotCurrentAngle >= 360.0) robotCurrentAngle -= 360.0;
+            }
+            else {
+                // no need to invert coordinate for Blue Alliance
+                robotCurrentPosX = robotPosCalibrationMTRX[0];
+                robotCurrentPosY = robotPosCalibrationMTRX[1];
+                robotCurrentAngle = robotPosCalibrationMTRX[5];
+            }
+            telemetry.addData("new position", "{X, Y, theta} = %.2f, %.2f, %.1f",
+                    robotCurrentPosX, robotCurrentPosY, robotCurrentAngle);
+            telemetry.update();
+        }
+        else {
+            // vision targets were not found
+            // no change to robot position information
+            telemetry.addData("Visible Target", "not found");
+            telemetry.update();
+        }
+    }
+
     private void turnRobot(double degrees) {
         robot.drive.turnByAngle(TURN_SPEED, degrees);
-        robotCurrentPosX += ROBOT_HALF_LENGTH * (Math.cos((robotCurrentAngle+degrees)*Math.PI/180.0)
-                - Math.cos(robotCurrentAngle*Math.PI/180.0));
-        robotCurrentPosY += ROBOT_HALF_LENGTH * (Math.sin((robotCurrentAngle+degrees)*Math.PI/180.0)
-                - Math.sin(robotCurrentAngle*Math.PI/180.0));
+//        robotCurrentPosX += ROBOT_HALF_LENGTH * (Math.cos((robotCurrentAngle+degrees)*Math.PI/180.0)
+//                - Math.cos(robotCurrentAngle*Math.PI/180.0));
+//        robotCurrentPosY += ROBOT_HALF_LENGTH * (Math.sin((robotCurrentAngle+degrees)*Math.PI/180.0)
+//                - Math.sin(robotCurrentAngle*Math.PI/180.0));
         robotCurrentAngle += degrees;
         // Display it for the driver.
         telemetry.addData("turnRobot",  "turn to %7.2lf degrees", robotCurrentAngle);
@@ -424,7 +523,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX = targetPositionX;
         robotCurrentPosY = targetPositionY;
         // Display it for the driver.
-        telemetry.addData("moveForward",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveToPosABS",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -440,7 +539,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosY += targetPositionY * Math.sin(robotCurrentAngle*Math.PI/180.0)
                         + targetPositionX * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveForward",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveToPosREL",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
