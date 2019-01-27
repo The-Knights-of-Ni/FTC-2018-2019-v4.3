@@ -83,7 +83,7 @@ public class Drive extends Subsystem {
             // counter-clockwise
             double currentAngle = initialAngle;
             while (Math.abs(currentAngle - initialAngle - turnAngle) > 2) {
-                turn(power);
+                turn(-power);
                 currentAngle = getYaw();
                 if (currentAngle < initialAngle) {
                     // angle wraparound
@@ -94,7 +94,7 @@ public class Drive extends Subsystem {
             // clockwise
             double currentAngle = initialAngle;
             while (Math.abs(currentAngle - initialAngle - turnAngle) > 2) {
-                turn(-power);
+                turn(power);
                 currentAngle = getYaw();
                 if (currentAngle > initialAngle) {
                     // angle wraparound

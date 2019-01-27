@@ -45,13 +45,13 @@ public class Auto_Blue_Depot extends LinearOpMode{
     private TFObjectDetector tfod;
 
     //DO WITH ENCODERS
-    private static final double     COUNTS_PER_MOTOR_REV    = 537.6 ;    // AM Orbital 20 motor
+    private static final double     COUNTS_PER_MOTOR_REV    = 537.6*0.646;    // AM Orbital 20 motor
     private static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
-    private static final double     WHEEL_DIAMETER_INCHES   = 6.0 ;     // For figuring circumference
+    private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     private static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    private static final double     DRIVE_SPEED             = 0.6;
-    private static final double     TURN_SPEED              = 0.5;
+    private static final double     DRIVE_SPEED             = 0.4;
+    private static final double     TURN_SPEED              = 0.3;
 
     //Timing Constants
     private static final int PICTOGRAPH_TIMEOUT = 5000;
@@ -105,7 +105,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
 
     private static final double     ROBOT_HALF_LENGTH    = 9.0;
 
-    private static final int        MAX_TRIAL_COUNT = 3;
+    private static final int        MAX_TRIAL_COUNT = 30;
 
     // define robot position global variables
     private double robotCurrentPosX;    // unit in inches
@@ -151,14 +151,18 @@ public class Auto_Blue_Depot extends LinearOpMode{
         // find mineral configuration
         int samplePos;
         int trialCount = 0;
+        if (tfod != null) {
+            tfod.activate();
+        }
         do {
-            samplePos = mineralPosIdentification();
+            samplePos = mineralPosIdentification2Mineral();
             trialCount++;
+            Thread.sleep(500);
             // repeat MAX_TRIAL_COUNT times if no mineral was found
-        } while ((samplePos == -1) && (trialCount < MAX_TRIAL_COUNT));
+        } while (samplePos == -1);
 
         //Forwards towards mineral samples
-        moveForward(10.0);
+        moveForward(15.0);
 //        moveToPosABS(-22.1, 22.1);    // depot case
 //        moveToPosABS( 22.1, 22.1);    // crater case
 
@@ -166,12 +170,13 @@ public class Auto_Blue_Depot extends LinearOpMode{
         switch (samplePos) {
             case 0:
                 moveLeft(16.0);
+//                moveForward(5.0);
                 break;
             case 1:
                 break;
             case 2:
                 moveRight(16.0);
-                break;
+//                moveForward(5.0);
             default: // gold mineral not found, go straight
                 break;
         }
@@ -183,6 +188,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
             case 0:
                 moveForward(15.0);
                 turnRobot(-30.0);
+                turnRobot(179.0);
                 moveForward(15.0);
                 break;
             case 1:
@@ -190,7 +196,8 @@ public class Auto_Blue_Depot extends LinearOpMode{
                 break;
             case 2:
                 moveForward(15.0);
-                turnRobot(30.0);
+//                turnRobot(30.0);
+                turnRobot(179.0);
                 moveForward(15.0);
                 break;
             default:
@@ -209,7 +216,6 @@ public class Auto_Blue_Depot extends LinearOpMode{
 
     private void initRobot() {
         robot.init();
-        robot.jewel.retract();
         robot.drive.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.drive.setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -225,17 +231,17 @@ public class Auto_Blue_Depot extends LinearOpMode{
 
     private void initVuforiaEngine() {
         //Vuforia initialization
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.vuforiaLicenseKey = "AVjXPzj/////AAABmQ0V3DHJw0P5lI39lVnXqNN+qX1uwVniSS5pN2zeI7ng4z9OkAMad+79Zv+vPtirvt1/Ai6dD+bZL04LynwBqdGmNSXaTXzHd21vpZdiBxmGt9Gb6nMP/p2gTc5wU6hVRJqTe+KexOqzppYs79i5rGbbwO7bZUxpXR5tJeLzicXi3prSnh49SK+kxyTX9XfsjG90+H2TfzVjpYhbX26Qi/abV4uMn7xgzC1q7L54Caixa1aytY3F/NnWAC+87mG5ghf4tcH0CPVFoYEUa0wKMG1bMWOPSfyRG/BBWdaxd1bsIU0xhI5i24nr5LXIrw2JI286TduItR/IH4WRonVA6tbz9QuuhSLlDocIgbwxIbJB";
-//        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        vuforia = ClassFactory.createVuforiaLocalizer(parameters);
         parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
         // Loading trackables is not necessary for the Tensor Flow Object Detection engine.
-
+        telemetry.addLine("Vuforia Init Done");
+        telemetry.update();
         //Tensorflow init
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -377,9 +383,6 @@ public class Auto_Blue_Depot extends LinearOpMode{
         // 1: CENTER
         // 2: RIGHT
         int pos = -1;
-        if (tfod != null) {
-            tfod.activate();
-        }
 
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
@@ -406,10 +409,10 @@ public class Auto_Blue_Depot extends LinearOpMode{
                             pos = 0;
                         } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
                             telemetry.addData("Gold Mineral Position", "Right");
-                            pos = 1;
+                            pos = 2;
                         } else {
                             telemetry.addData("Gold Mineral Position", "Center");
-                            pos = 2;
+                            pos = 1;
                         }
                     }
                 }
@@ -417,9 +420,57 @@ public class Auto_Blue_Depot extends LinearOpMode{
             }
         }
 
+//        if (tfod != null) {
+//            tfod.shutdown();
+//        }
+        return pos;
+    }
+
+    private int mineralPosIdentification2Mineral(){
+        // 0: LEFT
+        // 1: CENTER
+        // 2: RIGHT
+        int pos = -1;
+
         if (tfod != null) {
-            tfod.shutdown();
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                telemetry.addData("# Object Detected", updatedRecognitions.size());
+                if (updatedRecognitions.size() == 2) {
+                    int goldMineralX = -1;
+                    int silverMineral1X = -1;
+                    int silverMineral2X = -1;
+                    for (Recognition recognition : updatedRecognitions) {
+                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                            goldMineralX = (int) recognition.getLeft();
+                        } else if (silverMineral1X == -1) {
+                            silverMineral1X = (int) recognition.getLeft();
+                        } else {
+                            silverMineral2X = (int) recognition.getLeft();
+                        }
+                    }
+                    if(goldMineralX == -1){
+                        telemetry.addData("Gold Mineral Position", "Left");
+                        pos = 0;
+                    }
+                    else if(goldMineralX < silverMineral1X){
+                        telemetry.addData("Gold Mineral Position", "Center");
+                        pos = 1;
+                    }
+                    else{
+                        telemetry.addData("Gold Mineral Position", "Right");
+                        pos = 2;
+                    }
+                }
+                telemetry.update();
+            }
         }
+
+//        if (tfod != null) {
+//            tfod.shutdown();
+//        }
         return pos;
     }
 
@@ -504,7 +555,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
 //                - Math.sin(robotCurrentAngle*Math.PI/180.0));
         robotCurrentAngle += degrees;
         // Display it for the driver.
-        telemetry.addData("turnRobot",  "turn to %7.2lf degrees", robotCurrentAngle);
+        telemetry.addData("turnRobot",  "turn to %7.2f degrees", robotCurrentAngle);
         telemetry.update();
         sleep(100);
     }
@@ -523,7 +574,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX = targetPositionX;
         robotCurrentPosY = targetPositionY;
         // Display it for the driver.
-        telemetry.addData("moveToPosABS",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveToPosABS",  "move to %7.2f, %7.2f", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -539,7 +590,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosY += targetPositionY * Math.sin(robotCurrentAngle*Math.PI/180.0)
                         + targetPositionX * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveToPosREL",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveToPosREL",  "move to %7.2f, %7.2f", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -551,7 +602,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX += distance * Math.cos(robotCurrentAngle*Math.PI/180.0);
         robotCurrentPosY += distance * Math.sin(robotCurrentAngle*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveForward",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveForward",  "move to %7.2f, %7.2f", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -563,7 +614,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX += distance * Math.cos((robotCurrentAngle+180.0)*Math.PI/180.0);
         robotCurrentPosY += distance * Math.sin((robotCurrentAngle+180.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveBackward",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveBackward",  "move to %7.2f, %7.2f", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -575,7 +626,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX += distance * Math.cos((robotCurrentAngle+90.0)*Math.PI/180.0);
         robotCurrentPosY += distance * Math.sin((robotCurrentAngle+90.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveLeft",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveLeft",  "move to %7.2f, %7.2f", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }
@@ -587,7 +638,7 @@ public class Auto_Blue_Depot extends LinearOpMode{
         robotCurrentPosX += distance * Math.cos((robotCurrentAngle-90.0)*Math.PI/180.0);
         robotCurrentPosY += distance * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
         // Display it for the driver.
-        telemetry.addData("moveRight",  "move to %7.2lf, %7.2lf", robotCurrentPosX,  robotCurrentPosY);
+        telemetry.addData("moveRight",  "move to %7.2f, %7.2f", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();
         sleep(100);
     }

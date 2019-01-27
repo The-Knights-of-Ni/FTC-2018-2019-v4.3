@@ -12,9 +12,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
-import org.firstinspires.ftc.teamcode.subsystems.Glyft;
-import org.firstinspires.ftc.teamcode.subsystems.Jewel;
-import org.firstinspires.ftc.teamcode.subsystems.RelicRecovery;
 /**
  * Created by AndrewC on 11/25/2017.
  */
@@ -49,9 +46,6 @@ public class Robot {
 
     //Subsystems
     public Drive drive;
-    public Glyft glyft;
-    public RelicRecovery relicRecovery;
-    public Jewel jewel;
 
     public Robot(OpMode opMode, ElapsedTime timer){
         hardwareMap = opMode.hardwareMap;
@@ -60,25 +54,18 @@ public class Robot {
     }
     public void init(){
         //DC Motors
-        frontLeftDriveMotor = (DcMotorEx) hardwareMap.dcMotor.get("fl_drive");
-        frontRightDriveMotor = (DcMotorEx) hardwareMap.dcMotor.get("fr_drive");
-        rearLeftDriveMotor = (DcMotorEx) hardwareMap.dcMotor.get("rl_drive");
-        rearRightDriveMotor = (DcMotorEx) hardwareMap.dcMotor.get("rr_drive");
-        leftGlyftMotor = (DcMotorEx) hardwareMap.dcMotor.get("l_glyft");
-        rightGlyftMotor = (DcMotorEx) hardwareMap.dcMotor.get("r_glyft");
-        relicMotor = (DcMotorEx) hardwareMap.dcMotor.get("relic");
+        frontLeftDriveMotor = (DcMotorEx) hardwareMap.dcMotor.get("fl");
+        frontRightDriveMotor = (DcMotorEx) hardwareMap.dcMotor.get("fr");
+        rearLeftDriveMotor = (DcMotorEx) hardwareMap.dcMotor.get("bl");
+        rearRightDriveMotor = (DcMotorEx) hardwareMap.dcMotor.get("br");
 
         frontRightDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rearRightDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightGlyftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontLeftDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rearLeftDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rearRightDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftGlyftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightGlyftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        relicMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Servos
 //        jewelServo = hardwareMap.servo.get("jewel_servo");
@@ -89,7 +76,7 @@ public class Robot {
 
         //Sensors
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        colorSensor = hardwareMap.colorSensor.get("color");
+//        colorSensor = hardwareMap.colorSensor.get("color");
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
