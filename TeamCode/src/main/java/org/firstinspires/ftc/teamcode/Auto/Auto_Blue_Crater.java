@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Auto;
+
 import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,7 +12,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -29,9 +30,9 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
-@Autonomous(name = "AutoBlueDepot")
-public class Auto_Blue_Depot extends LinearOpMode {
-    private static final String TAG = "AutoBlueDepot";
+@Autonomous(name = "AutoBlueCrater")
+public class Auto_Blue_Crater extends LinearOpMode {
+    private static final String TAG = "AutoBlueCrater";
 
     private Robot robot;
     private ElapsedTime timer;
@@ -68,31 +69,31 @@ public class Auto_Blue_Depot extends LinearOpMode {
     private static final double     CRATER_X    = FIELD_X - 25.0;
     private static final double     CRATER_Y    = FIELD_Y - 25.0;
 
-//    // mineral position (left lander) (Crater side)
-//    private static final double     MINERAL1_X    = FIELD_X - 45.5;
-//    private static final double     MINERAL1_Y    = FIELD_Y - 25.0;
-//    private static final double     MINERAL2_X    = FIELD_X - 35.25;
-//    private static final double     MINERAL2_Y    = FIELD_Y - 35.25;
-//    private static final double     MINERAL3_X    = FIELD_X - 25.0;
-//    private static final double     MINERAL3_Y    = FIELD_Y - 45.5;
-
-    // mineral position (right lander) (Depot side)
-    private static final double     MINERAL1_X    = -FIELD_X + 25.0;
-    private static final double     MINERAL1_Y    = FIELD_Y - 45.5;
-    private static final double     MINERAL2_X    = -FIELD_X + 35.25;
+    // mineral position (left lander) (Crater side)
+    private static final double     MINERAL1_X    = FIELD_X - 45.5;
+    private static final double     MINERAL1_Y    = FIELD_Y - 25.0;
+    private static final double     MINERAL2_X    = FIELD_X - 35.25;
     private static final double     MINERAL2_Y    = FIELD_Y - 35.25;
-    private static final double     MINERAL3_X    = -FIELD_X + 45.5;
-    private static final double     MINERAL3_Y    = FIELD_Y - 25.0;
+    private static final double     MINERAL3_X    = FIELD_X - 25.0;
+    private static final double     MINERAL3_Y    = FIELD_Y - 45.5;
 
-//    // Robot initial position (left lander) (Crater side)
-//    private static final double     ROBOT_INIT_POS_X    = 15.0;
-//    private static final double     ROBOT_INIT_POS_Y    = 15.0;
-//    private static final double     ROBOT_INIT_ANGLE    = 45.0;
+//    // mineral position (right lander) (Depot side)
+//    private static final double     MINERAL1_X    = -FIELD_X + 25.0;
+//    private static final double     MINERAL1_Y    = FIELD_Y - 45.5;
+//    private static final double     MINERAL2_X    = -FIELD_X + 35.25;
+//    private static final double     MINERAL2_Y    = FIELD_Y - 35.25;
+//    private static final double     MINERAL3_X    = -FIELD_X + 45.5;
+//    private static final double     MINERAL3_Y    = FIELD_Y - 25.0;
 
-    // Robot initial position (right lander) (Depot side)
-    private static final double     ROBOT_INIT_POS_X    = -15.0;
+    // Robot initial position (left lander) (Crater side)
+    private static final double     ROBOT_INIT_POS_X    = 15.0;
     private static final double     ROBOT_INIT_POS_Y    = 15.0;
-    private static final double     ROBOT_INIT_ANGLE    = 135.0;
+    private static final double     ROBOT_INIT_ANGLE    = 45.0;
+
+//    // Robot initial position (right lander) (Depot side)
+//    private static final double     ROBOT_INIT_POS_X    = -15.0;
+//    private static final double     ROBOT_INIT_POS_Y    = 15.0;
+//    private static final double     ROBOT_INIT_ANGLE    = 135.0;
 
     private static final double     ROBOT_HALF_LENGTH    = 9.0;
 
@@ -139,7 +140,7 @@ public class Auto_Blue_Depot extends LinearOpMode {
 
 
         // define robot position after landing
-        // should be at (-15.0, 15.0)
+        // should be at (15.0, 15.0)
         robotCurrentPosX = ROBOT_INIT_POS_X;
         robotCurrentPosY = ROBOT_INIT_POS_Y;
         robotCurrentAngle = ROBOT_INIT_ANGLE;
@@ -152,7 +153,7 @@ public class Auto_Blue_Depot extends LinearOpMode {
             tfod.activate();
         }
         do {
-            samplePos = mineralPosIdentification2Mineral();
+            samplePos = mineralPosIdentification2Mineral_crater();
             trialCount++;
             Thread.sleep(500);
             // repeat MAX_TRIAL_COUNT times if no mineral was found
@@ -458,7 +459,7 @@ public class Auto_Blue_Depot extends LinearOpMode {
         return pos;
     }
 
-    private int mineralPosIdentification2Mineral(){
+    private int mineralPosIdentification2Mineral_crater(){
         // 0: LEFT
         // 1: CENTER
         // 2: RIGHT
@@ -470,10 +471,56 @@ public class Auto_Blue_Depot extends LinearOpMode {
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
                 telemetry.addData("# Object Detected", updatedRecognitions.size());
-                if (updatedRecognitions.size() == 2) {
+                if (updatedRecognitions.size() >= 2) {
+                    // there could be many detected objects in the crater
+                    // find the two objects closest to the bottom of the image
+
+                    // first define two objects that we want to track
+                    int object1X = -1;      // out of bound
+                    int object1Y = -1;      // out of bound
+                    int object1Type = 0;    // undetermined: 0, gold: 1, silver: 2
+                    int object2X = -1;      // out of bound
+                    int object2Y = -1;      // out of bound
+                    int object2Type = 0;    // undetermined: 0, gold: 1, silver: 2
+
+                    // look for the two objects closest to the bottom of the image
+                    for (Recognition recognition : updatedRecognitions) {
+                        if (((int) recognition.getBottom()) > object1Y) {
+                            // found an object lower than the lowest object
+                            // move lowest to second lowest
+                            object2X = object1X;
+                            object2Y = object1Y;
+                            object2Type = object1Type;
+                            // update lowest object info
+                            object1X = (int) recognition.getLeft();
+                            object1Y = (int) recognition.getBottom();
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                object1Type = 1;    // gold
+                            } else {
+                                object1Type = 2;    // silver
+                            }
+                        } else if (((int) recognition.getBottom()) > object2Y) {
+                            // found an object lower than the second lowest object
+                            // update second lowest object info
+                            object2X = (int) recognition.getLeft();
+                            object2Y = (int) recognition.getBottom();
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                object2Type = 1;    // gold
+                            } else {
+                                object2Type = 2;    // silver
+                            }
+                        }
+                    }
+
                     int goldMineralX = -1;
                     int silverMineral1X = -1;
                     int silverMineral2X = -1;
+
+                    // check the two minerals closest to tbe bottom of the image
+                    if (object1Type == 1) {
+                        // object1 is gold
+                        goldMineralX = object1X;
+                    }
                     for (Recognition recognition : updatedRecognitions) {
                         if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                             goldMineralX = (int) recognition.getLeft();
@@ -612,9 +659,9 @@ public class Auto_Blue_Depot extends LinearOpMode {
         // move to (targetPositionX, targetPositionY) in relative robot coordinate
         robot.drive.moveToPos2D(DRIVE_SPEED, targetPositionX, targetPositionY);
         robotCurrentPosX += targetPositionY * Math.cos(robotCurrentAngle*Math.PI/180.0)
-                        + targetPositionX * Math.cos((robotCurrentAngle-90.0)*Math.PI/180.0);
+                + targetPositionX * Math.cos((robotCurrentAngle-90.0)*Math.PI/180.0);
         robotCurrentPosY += targetPositionY * Math.sin(robotCurrentAngle*Math.PI/180.0)
-                        + targetPositionX * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
+                + targetPositionX * Math.sin((robotCurrentAngle-90.0)*Math.PI/180.0);
         // Display it for the driver.
         telemetry.addData("moveToPosREL",  "move to %7.2f, %7.2f", robotCurrentPosX,  robotCurrentPosY);
         telemetry.update();

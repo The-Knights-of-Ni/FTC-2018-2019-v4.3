@@ -16,6 +16,15 @@ public class Drive extends Subsystem {
     //Sensors
     private BNO055IMU imu;
 
+    //DO WITH ENCODERS
+    private static final double     COUNTS_PER_MOTOR_REV    = 537.6*0.646;    // AM Orbital 20 motor
+    private static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
+    private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    private static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+    private static final double     COUNTS_CORRECTION_X     = 0.939;
+    private static final double     COUNTS_CORRECTION_Y     = 0.646;
+
     public Drive(DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx rearLeft, DcMotorEx rearRight, BNO055IMU imu, ElapsedTime timer) {
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
@@ -110,8 +119,13 @@ public class Drive extends Subsystem {
         // the center of robot is 0,0
         setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
-        setTargetPosition2D(targetPositionX, targetPositionY);
-        setPower2D(targetPositionX, targetPositionY, power);
+        // convert from inches to motor counts
+        // correct for X and Y motion asymmetry
+        double distanceCountX, distanceCountY;
+        distanceCountX = targetPositionX * COUNTS_PER_INCH * COUNTS_CORRECTION_X;
+        distanceCountY = targetPositionY * COUNTS_PER_INCH * COUNTS_CORRECTION_Y;
+        setTargetPosition2D(distanceCountX, distanceCountY);
+        setPower2D(distanceCountX, distanceCountY, power);
         while (frontLeft.isBusy() && frontRight.isBusy() && rearLeft.isBusy() && rearRight.isBusy()) {
 
         }
@@ -135,15 +149,15 @@ public class Drive extends Subsystem {
         rearRight.setTargetPosition((int)  ((+ targetPositionX + targetPositionY)*Math.sqrt(2.0)));
     }
 
-    private double[] calcMotorPowers2D(double angleX, double angleY, double motorPower)
+    private double[] calcMotorPowers2D(double targetPositionX, double targetPositionY, double motorPower)
     {
-        // angleX and angleY determine the direction of movement
+        // targetPositionX and targetPositionY determine the direction of movement
         // motorPower determines the magnitude of motor power
-        double angleScale = Math.abs(angleX) + Math.abs(angleY);
-        double lrPower = motorPower * (- angleX + angleY) / angleScale;
-        double lfPower = motorPower * (+ angleX + angleY) / angleScale;
-        double rrPower = motorPower * (+ angleX + angleY) / angleScale;
-        double rfPower = motorPower * (- angleX + angleY) / angleScale;
+        double angleScale = Math.abs(targetPositionX) + Math.abs(targetPositionY);
+        double lrPower = motorPower * (- targetPositionX + targetPositionY) / angleScale;
+        double lfPower = motorPower * (+ targetPositionX + targetPositionY) / angleScale;
+        double rrPower = motorPower * (+ targetPositionX + targetPositionY) / angleScale;
+        double rfPower = motorPower * (- targetPositionX + targetPositionY) / angleScale;
         return new double[]{lrPower, lfPower, rrPower, rfPower};
     }
 
