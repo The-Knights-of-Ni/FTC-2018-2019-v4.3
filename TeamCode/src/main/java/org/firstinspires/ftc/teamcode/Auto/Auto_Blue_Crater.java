@@ -160,19 +160,19 @@ public class Auto_Blue_Crater extends LinearOpMode {
         } while (trialCount < MAX_TRIAL_COUNT);
 
         //Forwards towards mineral samples
-        moveForward(15.0);      // should be at (-25.61, 25.61)
+        moveForward(15.0);      // should be at (25.61, 25.61)
 //        moveToPosABS(-25.61, 25.61);    // depot case
 //        moveToPosABS( 25.61, 25.61);    // crater case
 
         //Drive to correct sample (gold)
         switch (samplePos) {
             case 0:         // left
-                moveLeft(16.0);     // should be at (-36.92, 14.30)
+                moveLeft(16.0);     // should be at (14.30, 36.92)
                 break;
             case 1:         // center
                 break;
             case 2:         // right
-                moveRight(16.0);    // should be at (-14.30, 36.92)
+                moveRight(16.0);    // should be at (36.92, 14.30)
                 break;
             default: // gold mineral not found, go straight
                 break;
@@ -433,9 +433,11 @@ public class Auto_Blue_Crater extends LinearOpMode {
                     for (Recognition recognition : updatedRecognitions) {
                         if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                             goldMineralX = (int) recognition.getLeft();
-                        } else if (silverMineral1X == -1) {
+                        }
+                        else if (silverMineral1X == -1) {
                             silverMineral1X = (int) recognition.getLeft();
-                        } else {
+                        }
+                        else {
                             silverMineral2X = (int) recognition.getLeft();
                         }
                     }
@@ -443,10 +445,12 @@ public class Auto_Blue_Crater extends LinearOpMode {
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                             telemetry.addData("Gold Mineral Position", "Left");
                             pos = 0;
-                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                        }
+                        else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
                             telemetry.addData("Gold Mineral Position", "Right");
                             pos = 2;
-                        } else {
+                        }
+                        else {
                             telemetry.addData("Gold Mineral Position", "Center");
                             pos = 1;
                         }
@@ -496,17 +500,20 @@ public class Auto_Blue_Crater extends LinearOpMode {
                             object1Y = (int) recognition.getBottom();
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 object1Type = 1;    // gold
-                            } else {
+                            }
+                            else {
                                 object1Type = 2;    // silver
                             }
-                        } else if (((int) recognition.getBottom()) > object2Y) {
+                        }
+                        else if (((int) recognition.getBottom()) > object2Y) {
                             // found an object lower than the second lowest object
                             // update second lowest object info
                             object2X = (int) recognition.getLeft();
                             object2Y = (int) recognition.getBottom();
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 object2Type = 1;    // gold
-                            } else {
+                            }
+                            else {
                                 object2Type = 2;    // silver
                             }
                         }
@@ -520,15 +527,20 @@ public class Auto_Blue_Crater extends LinearOpMode {
                     if (object1Type == 1) {
                         // object1 is gold
                         goldMineralX = object1X;
+                        // object2 is silver
+                        silverMineral1X = object2X;
                     }
-                    for (Recognition recognition : updatedRecognitions) {
-                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldMineralX = (int) recognition.getLeft();
-                        } else if (silverMineral1X == -1) {
-                            silverMineral1X = (int) recognition.getLeft();
-                        } else {
-                            silverMineral2X = (int) recognition.getLeft();
-                        }
+                    else if (object2Type == 1){
+                        // object2 is gold
+                        goldMineralX = object2X;
+                        // object1 is silver
+                        silverMineral1X = object1X;
+                    }
+                    else {
+                        // object1 is silver
+                        silverMineral1X = object1X;
+                        // object2 is silver
+                        silverMineral2X = object2X;
                     }
                     if(goldMineralX == -1){
                         telemetry.addData("Gold Mineral Position", "Left");
