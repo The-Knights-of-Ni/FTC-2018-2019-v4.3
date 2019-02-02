@@ -167,11 +167,13 @@ public class Auto_Blue_Depot extends LinearOpMode {
         switch (samplePos) {
             case 0:         // left
                 moveLeft(16.0);     // should be at (-36.92, 14.30)
+//                moveToPosABS(-36.92, 14.30);    // depot case
                 break;
             case 1:         // center
                 break;
             case 2:         // right
                 moveRight(16.0);    // should be at (-14.30, 36.92)
+//                moveToPosABS(-14.30, 36.92);    // depot case
                 break;
             default: // gold mineral not found, go straight
                 break;
@@ -183,19 +185,25 @@ public class Auto_Blue_Depot extends LinearOpMode {
         switch (samplePos) {
             case 0:         // left
                 moveForward(15.0);      // should be at (-47.53, 24.91)
+//                moveToPosABS(-47.53, 24.91);    // depot case
                 turnRobot(-30.0);
                 moveForward(25.0);      // should be at (-54.00, 49.06)
+//                moveToPosABS(-54.00, 49.06);    // depot case
                 break;
             case 1:         // center
                 moveForward(25.0);      // should be at (-53.89, 53.89)
+//                moveToPosABS(-53.89, 53.89);    // depot case
                 break;
             case 2:         // right
                 moveForward(15.0);      // should be at (-24.91, 47.53)
+//                moveToPosABS(-24.91, 47.53);    // depot case
                 turnRobot(30.0);
                 moveForward(25.0);      // should be at (-49.06, 54.00)
+//                moveToPosABS(-49.06, 54.00);    // depot case
                 break;
             default:
                 moveForward(25.0);      // should be at (-53.89, 53.89)
+//                moveToPosABS(-53.89, 53.89);    // depot case
         }
 
         //DROP TEAM MARKER NEED TO BE ADDED
@@ -210,22 +218,30 @@ public class Auto_Blue_Depot extends LinearOpMode {
             case 0:         // left
                 turnRobot(-105.0);      // should be at (-54.00, 49.06)
                 moveLeft(11.94);        // should be at (-54.00, 61.00)
+//                moveToPosABS(-54.00, 61.00);    // depot case
                 moveForward(89.00);     // should be at (35.00, 61.00)
+//                moveToPosABS(35.00, 61.00);    // depot case
                 break;
             case 1:         // center
                 turnRobot(-135.0);      // should be at (-53.89, 53.89)
                 moveLeft(7.11);         // should be at (-53.89, 61.00)
+//                moveToPosABS(-53.89, 61.00);    // depot case
                 moveForward(88.89);     // should be at (35.00, 61.00)
+//                moveToPosABS(35.00, 61.00);    // depot case
                 break;
             case 2:         // right
                 turnRobot(-165.0);      // should be at (-49.06, 54.00)
                 moveLeft(7.00);         // should be at (-49.06, 61.00)
+//                moveToPosABS(-49.06, 61.00);    // depot case
                 moveForward(84.06);     // should be at (35.00, 61.00)
+//                moveToPosABS(35.00, 61.00);    // depot case
                 break;
             default:
                 turnRobot(-135.0);      // should be at (-53.89, 53.89)
                 moveLeft(7.11);         // should be at (-53.89, 61.00)
+//                moveToPosABS(-53.89, 61.00);    // depot case
                 moveForward(88.89);     // should be at (35.00, 61.00)
+//                moveToPosABS(35.00, 61.00);    // depot case
         }
 
 

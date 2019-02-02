@@ -168,36 +168,52 @@ public class Auto_Blue_Crater extends LinearOpMode {
         switch (samplePos) {
             case 0:         // left
                 moveLeft(16.0);     // should be at (14.30, 36.92)
+//                moveToPosABS( 14.30, 36.92);    // crater case
                 break;
             case 1:         // center
                 break;
             case 2:         // right
                 moveRight(16.0);    // should be at (36.92, 14.30)
+//                moveToPosABS( 36.92, 14.30);    // crater case
                 break;
             default: // gold mineral not found, go straight
                 break;
         }
         // drive forward to move the mineral
-        moveForward(15.0);
+        moveForward(10.0);
 
-        //move to depot depend on sample mineral position
+        // drive back away from the crater
+        moveBackward(10.0);
+
+        //prepare to move to depot depend on sample mineral position
         switch (samplePos) {
             case 0:         // left
-                moveForward(15.0);      // should be at (-47.53, 24.91)
-                turnRobot(-30.0);
-                moveForward(25.0);      // should be at (-54.00, 49.06)
+                // should be at (14.30, 36.92)
                 break;
             case 1:         // center
-                moveForward(25.0);      // should be at (-53.89, 53.89)
+                moveLeft(16.0);         // should be at (14.30, 36.92)
                 break;
             case 2:         // right
-                moveForward(15.0);      // should be at (-24.91, 47.53)
-                turnRobot(30.0);
-                moveForward(25.0);      // should be at (-49.06, 54.00)
+                moveLeft(32.0);         // should be at (14.30, 36.92)
                 break;
             default:
-                moveForward(25.0);      // should be at (-53.89, 53.89)
+                moveLeft(16.0);         // should be at (14.30, 36.92)
         }
+//        moveToPosABS( 14.30, 36.92);    // crater case
+
+        // move to depot
+        turnRobot(90.0);                // should be at (14.30, 36.92)
+//        calibrateRobotPos();
+//        turnRobot(135.0 - robotCurrentAngle);                // calibrate robot orientation
+
+        moveForward(15.0);              // should be at (3.69, 47.53)
+//        moveToPosABS( 3.69, 47.53);    // crater case
+        turnRobot(45.0);
+        moveRight(13.47);               // should be at (3.69, 61.00)
+//        moveToPosABS( 3.69, 61.00);    // crater case
+        moveForward(50.0);              // should be at (-46.31, 61.00)
+//        moveToPosABS( -46.31, 61.00);    // crater case
+
 
         //DROP TEAM MARKER NEED TO BE ADDED
 
@@ -207,27 +223,15 @@ public class Auto_Blue_Crater extends LinearOpMode {
 
         // Go to crater
 
-        switch (samplePos) {
-            case 0:         // left
-                turnRobot(-105.0);      // should be at (-54.00, 49.06)
-                moveLeft(11.94);        // should be at (-54.00, 61.00)
-                moveForward(89.00);     // should be at (35.00, 61.00)
-                break;
-            case 1:         // center
-                turnRobot(-135.0);      // should be at (-53.89, 53.89)
-                moveLeft(7.11);         // should be at (-53.89, 61.00)
-                moveForward(88.89);     // should be at (35.00, 61.00)
-                break;
-            case 2:         // right
-                turnRobot(-165.0);      // should be at (-49.06, 54.00)
-                moveLeft(7.00);         // should be at (-49.06, 61.00)
-                moveForward(84.06);     // should be at (35.00, 61.00)
-                break;
-            default:
-                turnRobot(-135.0);      // should be at (-53.89, 53.89)
-                moveLeft(7.11);         // should be at (-53.89, 61.00)
-                moveForward(88.89);     // should be at (35.00, 61.00)
-        }
+        moveBackward(50.0);             // should be at (3.69, 61.00)
+//        moveToPosABS( 3.69, 61.00);    // crater case
+        moveLeft(6.0);                  // should be at (3.69, 55.00)
+//        moveToPosABS( 3.69, 55.00);    // crater case
+        turnRobot(180.0);
+        moveLeft(6.0);                  // should be at (3.69, 61.00)
+//        moveToPosABS( 3.69, 61.00);    // crater case
+        moveForward(31.31);             // should be at (35.00, 61.00)
+//        moveToPosABS( 35.00, 61.00);    // crater case
 
 
         // At the edge of crater
